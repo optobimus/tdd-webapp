@@ -11,6 +11,8 @@ services:
     mem_limit: 20m
     ports:
       - "127.0.0.1:8080:80"
+    depends_on:
+      - api
 
   api:
     build:
@@ -18,17 +20,21 @@ services:
       dockerfile: Dockerfile
     image: webapp-backend
     environment:
-      DATABASE_URL: jdbc:postgresql://db:5432/webapp?user=webapp&password=secret
+      PORT: 80
+      DATABASE_URL: postgresql://webapp:secret@db:5432/webapp
     mem_reservation: 100m
     mem_limit: 200m
     ports:
       - "127.0.0.1:8081:80"
+    depends_on:
+      - db
 
   db:
     image: postgres:13
     environment:
       POSTGRES_USER: webapp
       POSTGRES_PASSWORD: secret
+      POSTGRES_DB: webapp
     mem_reservation: 100m
     mem_limit: 200m
     ports:

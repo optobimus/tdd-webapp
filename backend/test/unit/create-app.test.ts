@@ -6,5 +6,6 @@ describe('createApp', () => {
     const app = createApp();
 
     expect(app).toBeDefined();
+    void app.close();
   });
 });

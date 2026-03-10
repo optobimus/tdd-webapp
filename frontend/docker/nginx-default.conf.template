@@ -27,7 +27,7 @@ server {
     # traditional navigation
     index  index.html index.htm;
     # single page app navigation
-    #try_files $uri /index.html;
+    try_files $uri /index.html;
   }
 
   location /api {
