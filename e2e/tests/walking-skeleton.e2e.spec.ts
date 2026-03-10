@@ -1,8 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-test('it shows the app shell and empty todo list', async ({ page }) => {
+test('it shows the app shell and lets user add one todo item', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.getByRole('heading', { name: 'To-Do List' })).toBeVisible();
   await expect(page.getByText('No to-dos yet.')).toBeVisible();
+
+  await page.getByLabel('New to-do').fill('Buy milk');
+  await page.getByRole('button', { name: 'Add' }).click();
+  await expect(page.getByText('Buy milk')).toBeVisible();
 });
