@@ -1,0 +1,11 @@
+{
+  "name": "@webapp/e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test --pass-with-no-tests"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.1"
+  }
+}

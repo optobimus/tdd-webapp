@@ -5,6 +5,11 @@
   "homepage": "https://github.com/luontola/tdd-mooc-webapp",
   "license": "Apache-2.0",
   "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "e2e"
+  ],
   "devDependencies": {
     "prettier": "^3.1.1"
   },
@@ -13,6 +18,12 @@
     "npm": ">=10"
   },
   "scripts": {
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build": "npm run -w backend build && npm run -w frontend build",
+    "test": "npm run test:unit && npm run test:api",
+    "test:unit": "npm run -w backend test:unit && npm run -w frontend test:unit",
+    "test:api": "npm run -w backend test:api",
+    "test:integration": "npm run -w backend test:integration",
+    "test:e2e": "npm run -w e2e test"
   }
 }
