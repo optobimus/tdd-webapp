@@ -64,6 +64,15 @@ export function App({ apiClient }: AppProps) {
     }
   }
 
+  async function handleCompletedChange(id: string, completed: boolean) {
+    try {
+      const updated = await apiClient.setTodoCompleted(id, completed);
+      setTodos((current) => current.map((todo) => (todo.id === id ? updated : todo)));
+    } catch {
+      setHasError(true);
+    }
+  }
+
   return (
     <main>
       <h1>To-Do List</h1>
@@ -86,6 +95,12 @@ export function App({ apiClient }: AppProps) {
           <li key={todo.id}>
             {editingId === todo.id ? (
               <form onSubmit={(event) => handleRenameSubmit(event, todo.id)}>
+                <input
+                  type="checkbox"
+                  aria-label={`Mark ${todo.title} completed`}
+                  checked={todo.completed}
+                  onChange={(event) => handleCompletedChange(todo.id, event.target.checked)}
+                />
                 <label htmlFor={`rename-${todo.id}`}>Rename to-do</label>
                 <input
                   id={`rename-${todo.id}`}
@@ -99,7 +114,15 @@ export function App({ apiClient }: AppProps) {
               </form>
             ) : (
               <>
-                <span>{todo.title}</span>
+                <input
+                  type="checkbox"
+                  aria-label={`Mark ${todo.title} completed`}
+                  checked={todo.completed}
+                  onChange={(event) => handleCompletedChange(todo.id, event.target.checked)}
+                />
+                <span style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
+                  {todo.title}
+                </span>
                 <button type="button" onClick={() => startRename(todo.id, todo.title)}>
                   Rename
                 </button>

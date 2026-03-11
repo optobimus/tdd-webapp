@@ -4,6 +4,7 @@ export type TodoApiClient = {
   getTodos(): Promise<Todo[]>;
   createTodo(title: string): Promise<Todo>;
   renameTodo(id: string, title: string): Promise<Todo>;
+  setTodoCompleted(id: string, completed: boolean): Promise<Todo>;
 };
 
 async function expectJsonResponse<T>(response: Response): Promise<T> {
@@ -39,6 +40,17 @@ export class HttpTodoApiClient implements TodoApiClient {
       method: 'PATCH',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ title })
+    });
+
+    const payload = await expectJsonResponse<{ item: Todo }>(response);
+    return payload.item;
+  }
+
+  async setTodoCompleted(id: string, completed: boolean): Promise<Todo> {
+    const response = await fetch(`${this.baseUrl}/todos/${id}/completed`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ completed })
     });
 
     const payload = await expectJsonResponse<{ item: Todo }>(response);

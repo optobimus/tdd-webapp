@@ -52,5 +52,25 @@ export function createApp(todoRepository: TodoRepository): FastifyInstance {
     return { item };
   });
 
+  app.patch('/api/todos/:id/completed', async (request, reply) => {
+    const params = request.params as { id?: string } | undefined;
+    const id = params?.id?.trim();
+    if (!id) {
+      return reply.code(400).send({ error: 'Invalid id' });
+    }
+
+    const body = request.body as { completed?: unknown } | undefined;
+    if (typeof body?.completed !== 'boolean') {
+      return reply.code(400).send({ error: 'Completed must be boolean' });
+    }
+
+    const item = await todoRepository.setCompleted(id, body.completed);
+    if (!item) {
+      return reply.code(404).send({ error: 'Todo not found' });
+    }
+
+    return { item };
+  });
+
   return app;
 }

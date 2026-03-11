@@ -48,4 +48,13 @@ export class PostgresTodoRepository implements TodoRepository {
 
     return result.rows[0] ? toTodo(result.rows[0]) : null;
   }
+
+  async setCompleted(id: string, completed: boolean): Promise<Todo | null> {
+    const result = await this.pool.query<TodoRow>(
+      'UPDATE todos SET completed = $2 WHERE id = $1 AND archived = false RETURNING id, title, completed, archived',
+      [id, completed]
+    );
+
+    return result.rows[0] ? toTodo(result.rows[0]) : null;
+  }
 }

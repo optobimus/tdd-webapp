@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, test } from 'vitest';
 import { App } from './App';
@@ -31,6 +31,16 @@ class FakeTodoApiClient implements TodoApiClient {
     }
 
     existing.title = title;
+    return existing;
+  }
+
+  async setTodoCompleted(id: string, completed: boolean): Promise<Todo> {
+    const existing = this.todos.find((todo) => todo.id === id);
+    if (!existing) {
+      throw new Error('Todo not found');
+    }
+
+    existing.completed = completed;
     return existing;
   }
 }
@@ -70,5 +80,24 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     expect(await screen.findByText('Buy oat milk')).toBeDefined();
+  });
+
+  test('it marks an existing todo item completed', async () => {
+    const user = userEvent.setup();
+    render(
+      <App
+        apiClient={
+          new FakeTodoApiClient([{ id: '1', title: 'Buy milk', completed: false, archived: false }])
+        }
+      />
+    );
+
+    const checkbox = await screen.findByRole('checkbox', { name: 'Mark Buy milk completed' });
+    await user.click(checkbox);
+
+    await waitFor(() => {
+      expect((checkbox as HTMLInputElement).checked).toBe(true);
+    });
+    expect(await screen.findByText('Buy milk')).toBeDefined();
   });
 });

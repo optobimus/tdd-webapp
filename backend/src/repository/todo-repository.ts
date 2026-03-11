@@ -4,4 +4,5 @@ export type TodoRepository = {
   listVisible(): Promise<Todo[]>;
   create(title: string): Promise<Todo>;
   rename(id: string, title: string): Promise<Todo | null>;
+  setCompleted(id: string, completed: boolean): Promise<Todo | null>;
 };

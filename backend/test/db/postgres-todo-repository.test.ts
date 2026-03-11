@@ -57,4 +57,17 @@ describe.skipIf(!shouldRun)('PostgresTodoRepository', () => {
       archived: false
     });
   });
+
+  test('it marks an existing todo completed', async () => {
+    const created = await repository.create('Buy milk');
+
+    const updated = await repository.setCompleted(created.id, true);
+
+    expect(updated).toMatchObject({
+      id: created.id,
+      title: 'Buy milk',
+      completed: true,
+      archived: false
+    });
+  });
 });

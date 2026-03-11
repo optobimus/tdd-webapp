@@ -31,6 +31,16 @@ class FakeTodoRepository implements TodoRepository {
     existing.title = title;
     return existing;
   }
+
+  async setCompleted(id: string, completed: boolean): Promise<Todo | null> {
+    const existing = this.items.find((item) => item.id === id);
+    if (!existing) {
+      return null;
+    }
+
+    existing.completed = completed;
+    return existing;
+  }
 }
 
 describe('todo API routes', () => {
@@ -125,6 +135,53 @@ describe('todo API routes', () => {
       method: 'PATCH',
       url: '/api/todos/999/title',
       payload: { title: 'Buy oat milk' }
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual({ error: 'Todo not found' });
+    await app.close();
+  });
+
+  test('it marks a todo completed', async () => {
+    const repository = new FakeTodoRepository();
+    await repository.create('Buy milk');
+
+    const app = createApp(repository);
+    const response = await app.inject({
+      method: 'PATCH',
+      url: '/api/todos/1/completed',
+      payload: { completed: true }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      item: { id: '1', title: 'Buy milk', completed: true, archived: false }
+    });
+    await app.close();
+  });
+
+  test('it rejects completed update when payload is invalid', async () => {
+    const repository = new FakeTodoRepository();
+    await repository.create('Buy milk');
+
+    const app = createApp(repository);
+    const response = await app.inject({
+      method: 'PATCH',
+      url: '/api/todos/1/completed',
+      payload: { completed: 'yes' }
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({ error: 'Completed must be boolean' });
+    await app.close();
+  });
+
+  test('it returns not found when updating completed for missing todo', async () => {
+    const app = createApp(new FakeTodoRepository());
+    const response = await app.inject({
+      method: 'PATCH',
+      url: '/api/todos/999/completed',
+      payload: { completed: true }
     });
 
     expect(response.statusCode).toBe(404);
