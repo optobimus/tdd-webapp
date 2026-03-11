@@ -10,6 +10,19 @@ function parseTitle(value: unknown): string | null {
   return title.length > 0 ? title : null;
 }
 
+function parseId(value: unknown): string | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const id = value.trim();
+  return id.length > 0 ? id : null;
+}
+
+function parseCompleted(value: unknown): boolean | null {
+  return typeof value === 'boolean' ? value : null;
+}
+
 export function createApp(todoRepository: TodoRepository): FastifyInstance {
   const app = Fastify();
 
@@ -32,8 +45,8 @@ export function createApp(todoRepository: TodoRepository): FastifyInstance {
   });
 
   app.patch('/api/todos/:id/title', async (request, reply) => {
-    const params = request.params as { id?: string } | undefined;
-    const id = params?.id?.trim();
+    const params = request.params as { id?: unknown } | undefined;
+    const id = parseId(params?.id);
     if (!id) {
       return reply.code(400).send({ error: 'Invalid id' });
     }
@@ -53,18 +66,19 @@ export function createApp(todoRepository: TodoRepository): FastifyInstance {
   });
 
   app.patch('/api/todos/:id/completed', async (request, reply) => {
-    const params = request.params as { id?: string } | undefined;
-    const id = params?.id?.trim();
+    const params = request.params as { id?: unknown } | undefined;
+    const id = parseId(params?.id);
     if (!id) {
       return reply.code(400).send({ error: 'Invalid id' });
     }
 
     const body = request.body as { completed?: unknown } | undefined;
-    if (typeof body?.completed !== 'boolean') {
+    const completed = parseCompleted(body?.completed);
+    if (completed === null) {
       return reply.code(400).send({ error: 'Completed must be boolean' });
     }
 
-    const item = await todoRepository.setCompleted(id, body.completed);
+    const item = await todoRepository.setCompleted(id, completed);
     if (!item) {
       return reply.code(404).send({ error: 'Todo not found' });
     }
