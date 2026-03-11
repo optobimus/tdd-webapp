@@ -14,6 +14,9 @@ const fakeRepository: TodoRepository = {
   },
   async setCompleted(id, completed) {
     return { id, title: 'Buy milk', completed, archived: false };
+  },
+  async archiveCompleted() {
+    return 0;
   }
 };
 

@@ -43,6 +43,12 @@ class FakeTodoApiClient implements TodoApiClient {
     existing.completed = completed;
     return existing;
   }
+
+  async archiveCompleted(): Promise<number> {
+    const completedItems = this.todos.filter((todo) => todo.completed);
+    this.todos = this.todos.filter((todo) => !todo.completed);
+    return completedItems.length;
+  }
 }
 
 describe('App', () => {
@@ -99,5 +105,19 @@ describe('App', () => {
       expect((checkbox as HTMLInputElement).checked).toBe(true);
     });
     expect(await screen.findByText('Buy milk')).toBeDefined();
+  });
+
+  test('it archives completed todo items', async () => {
+    const user = userEvent.setup();
+    render(
+      <App
+        apiClient={
+          new FakeTodoApiClient([{ id: '1', title: 'Buy milk', completed: true, archived: false }])
+        }
+      />
+    );
+
+    await user.click(await screen.findByRole('button', { name: 'Archive Completed' }));
+    expect(await screen.findByText('No to-dos yet.')).toBeDefined();
   });
 });

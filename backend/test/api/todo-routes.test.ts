@@ -41,6 +41,17 @@ class FakeTodoRepository implements TodoRepository {
     existing.completed = completed;
     return existing;
   }
+
+  async archiveCompleted(): Promise<number> {
+    let archivedCount = 0;
+    for (const item of this.items) {
+      if (item.completed && !item.archived) {
+        item.archived = true;
+        archivedCount += 1;
+      }
+    }
+    return archivedCount;
+  }
 }
 
 describe('todo API routes', () => {
@@ -186,6 +197,25 @@ describe('todo API routes', () => {
 
     expect(response.statusCode).toBe(404);
     expect(response.json()).toEqual({ error: 'Todo not found' });
+    await app.close();
+  });
+
+  test('it archives all completed todos', async () => {
+    const repository = new FakeTodoRepository();
+    const created = await repository.create('Buy milk');
+    await repository.setCompleted(created.id, true);
+
+    const app = createApp(repository);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/todos/archive-completed'
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ archivedCount: 1 });
+
+    const listResponse = await app.inject({ method: 'GET', url: '/api/todos' });
+    expect(listResponse.json()).toEqual({ items: [] });
     await app.close();
   });
 });

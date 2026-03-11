@@ -72,5 +72,10 @@ export function createApp(todoRepository: TodoRepository): FastifyInstance {
     return { item };
   });
 
+  app.post('/api/todos/archive-completed', async () => {
+    const archivedCount = await todoRepository.archiveCompleted();
+    return { archivedCount };
+  });
+
   return app;
 }

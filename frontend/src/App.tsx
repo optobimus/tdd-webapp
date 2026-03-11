@@ -73,6 +73,15 @@ export function App({ apiClient }: AppProps) {
     }
   }
 
+  async function handleArchiveCompleted() {
+    try {
+      await apiClient.archiveCompleted();
+      setTodos((current) => current.filter((todo) => !todo.completed));
+    } catch {
+      setHasError(true);
+    }
+  }
+
   return (
     <main>
       <h1>To-Do List</h1>
@@ -85,6 +94,9 @@ export function App({ apiClient }: AppProps) {
         />
         <button type="submit">Add</button>
       </form>
+      <button type="button" onClick={handleArchiveCompleted}>
+        Archive Completed
+      </button>
 
       {isLoading ? <p>Loading...</p> : null}
       {!isLoading && !hasError && todos.length === 0 ? <p>No to-dos yet.</p> : null}

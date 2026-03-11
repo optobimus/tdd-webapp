@@ -57,4 +57,12 @@ export class PostgresTodoRepository implements TodoRepository {
 
     return result.rows[0] ? toTodo(result.rows[0]) : null;
   }
+
+  async archiveCompleted(): Promise<number> {
+    const result = await this.pool.query(
+      'UPDATE todos SET archived = true WHERE completed = true AND archived = false'
+    );
+
+    return result.rowCount ?? 0;
+  }
 }

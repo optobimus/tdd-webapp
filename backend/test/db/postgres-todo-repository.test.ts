@@ -70,4 +70,15 @@ describe.skipIf(!shouldRun)('PostgresTodoRepository', () => {
       archived: false
     });
   });
+
+  test('it archives all completed todos and removes them from visible list', async () => {
+    const created = await repository.create('Buy milk');
+    await repository.setCompleted(created.id, true);
+
+    const archivedCount = await repository.archiveCompleted();
+    const visibleTodos = await repository.listVisible();
+
+    expect(archivedCount).toBe(1);
+    expect(visibleTodos).toEqual([]);
+  });
 });
