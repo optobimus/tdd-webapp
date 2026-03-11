@@ -44,4 +44,17 @@ describe.skipIf(!shouldRun)('PostgresTodoRepository', () => {
 
     expect(todos).toEqual([]);
   });
+
+  test('it renames an existing todo', async () => {
+    const created = await repository.create('Buy milk');
+
+    const renamed = await repository.rename(created.id, 'Buy oat milk');
+
+    expect(renamed).toMatchObject({
+      id: created.id,
+      title: 'Buy oat milk',
+      completed: false,
+      archived: false
+    });
+  });
 });

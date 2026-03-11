@@ -3,6 +3,7 @@ import type { Todo } from '../types';
 export type TodoApiClient = {
   getTodos(): Promise<Todo[]>;
   createTodo(title: string): Promise<Todo>;
+  renameTodo(id: string, title: string): Promise<Todo>;
 };
 
 async function expectJsonResponse<T>(response: Response): Promise<T> {
@@ -25,6 +26,17 @@ export class HttpTodoApiClient implements TodoApiClient {
   async createTodo(title: string): Promise<Todo> {
     const response = await fetch(`${this.baseUrl}/todos`, {
       method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ title })
+    });
+
+    const payload = await expectJsonResponse<{ item: Todo }>(response);
+    return payload.item;
+  }
+
+  async renameTodo(id: string, title: string): Promise<Todo> {
+    const response = await fetch(`${this.baseUrl}/todos/${id}/title`, {
+      method: 'PATCH',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ title })
     });

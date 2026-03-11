@@ -8,6 +8,9 @@ const fakeRepository: TodoRepository = {
   },
   async create(title) {
     return { id: '1', title, completed: false, archived: false };
+  },
+  async rename(id, title) {
+    return { id, title, completed: false, archived: false };
   }
 };
 

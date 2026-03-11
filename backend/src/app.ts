@@ -31,5 +31,26 @@ export function createApp(todoRepository: TodoRepository): FastifyInstance {
     return reply.code(201).send({ item });
   });
 
+  app.patch('/api/todos/:id/title', async (request, reply) => {
+    const params = request.params as { id?: string } | undefined;
+    const id = params?.id?.trim();
+    if (!id) {
+      return reply.code(400).send({ error: 'Invalid id' });
+    }
+
+    const body = request.body as { title?: unknown } | undefined;
+    const title = parseTitle(body?.title);
+    if (!title) {
+      return reply.code(400).send({ error: 'Title must not be empty' });
+    }
+
+    const item = await todoRepository.rename(id, title);
+    if (!item) {
+      return reply.code(404).send({ error: 'Todo not found' });
+    }
+
+    return { item };
+  });
+
   return app;
 }

@@ -23,6 +23,16 @@ class FakeTodoApiClient implements TodoApiClient {
     this.todos.push(created);
     return created;
   }
+
+  async renameTodo(id: string, title: string): Promise<Todo> {
+    const existing = this.todos.find((todo) => todo.id === id);
+    if (!existing) {
+      throw new Error('Todo not found');
+    }
+
+    existing.title = title;
+    return existing;
+  }
 }
 
 describe('App', () => {
@@ -41,5 +51,24 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Add' }));
 
     expect(await screen.findByText('Buy milk')).toBeDefined();
+  });
+
+  test('it renames an existing todo item', async () => {
+    const user = userEvent.setup();
+    render(
+      <App
+        apiClient={
+          new FakeTodoApiClient([{ id: '1', title: 'Buy milk', completed: false, archived: false }])
+        }
+      />
+    );
+
+    await screen.findByText('Buy milk');
+    await user.click(screen.getByRole('button', { name: 'Rename' }));
+    await user.clear(screen.getByLabelText('Rename to-do'));
+    await user.type(screen.getByLabelText('Rename to-do'), 'Buy oat milk');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(await screen.findByText('Buy oat milk')).toBeDefined();
   });
 });

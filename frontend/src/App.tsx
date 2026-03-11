@@ -11,6 +11,8 @@ export function App({ apiClient }: AppProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [newTitle, setNewTitle] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [renameTitle, setRenameTitle] = useState('');
 
   useEffect(() => {
     void (async () => {
@@ -40,6 +42,28 @@ export function App({ apiClient }: AppProps) {
     }
   }
 
+  function startRename(id: string, title: string) {
+    setEditingId(id);
+    setRenameTitle(title);
+  }
+
+  async function handleRenameSubmit(event: FormEvent<HTMLFormElement>, id: string) {
+    event.preventDefault();
+    const title = renameTitle.trim();
+    if (!title) {
+      return;
+    }
+
+    try {
+      const updated = await apiClient.renameTodo(id, title);
+      setTodos((current) => current.map((todo) => (todo.id === id ? updated : todo)));
+      setEditingId(null);
+      setRenameTitle('');
+    } catch {
+      setHasError(true);
+    }
+  }
+
   return (
     <main>
       <h1>To-Do List</h1>
@@ -59,7 +83,29 @@ export function App({ apiClient }: AppProps) {
 
       <ul>
         {todos.map((todo) => (
-          <li key={todo.id}>{todo.title}</li>
+          <li key={todo.id}>
+            {editingId === todo.id ? (
+              <form onSubmit={(event) => handleRenameSubmit(event, todo.id)}>
+                <label htmlFor={`rename-${todo.id}`}>Rename to-do</label>
+                <input
+                  id={`rename-${todo.id}`}
+                  value={renameTitle}
+                  onChange={(event) => setRenameTitle(event.target.value)}
+                />
+                <button type="submit">Save</button>
+                <button type="button" onClick={() => setEditingId(null)}>
+                  Cancel
+                </button>
+              </form>
+            ) : (
+              <>
+                <span>{todo.title}</span>
+                <button type="button" onClick={() => startRename(todo.id, todo.title)}>
+                  Rename
+                </button>
+              </>
+            )}
+          </li>
         ))}
       </ul>
     </main>

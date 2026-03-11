@@ -21,6 +21,16 @@ class FakeTodoRepository implements TodoRepository {
     this.items.push(item);
     return item;
   }
+
+  async rename(id: string, title: string): Promise<Todo | null> {
+    const existing = this.items.find((item) => item.id === id);
+    if (!existing) {
+      return null;
+    }
+
+    existing.title = title;
+    return existing;
+  }
 }
 
 describe('todo API routes', () => {
@@ -72,6 +82,53 @@ describe('todo API routes', () => {
 
     expect(response.statusCode).toBe(400);
     expect(response.json()).toEqual({ error: 'Title must not be empty' });
+    await app.close();
+  });
+
+  test('it renames a todo with a valid title', async () => {
+    const repository = new FakeTodoRepository();
+    await repository.create('Buy milk');
+
+    const app = createApp(repository);
+    const response = await app.inject({
+      method: 'PATCH',
+      url: '/api/todos/1/title',
+      payload: { title: 'Buy oat milk' }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      item: { id: '1', title: 'Buy oat milk', completed: false, archived: false }
+    });
+    await app.close();
+  });
+
+  test('it rejects renaming when title is empty', async () => {
+    const repository = new FakeTodoRepository();
+    await repository.create('Buy milk');
+
+    const app = createApp(repository);
+    const response = await app.inject({
+      method: 'PATCH',
+      url: '/api/todos/1/title',
+      payload: { title: '   ' }
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({ error: 'Title must not be empty' });
+    await app.close();
+  });
+
+  test('it returns not found when renaming a missing todo', async () => {
+    const app = createApp(new FakeTodoRepository());
+    const response = await app.inject({
+      method: 'PATCH',
+      url: '/api/todos/999/title',
+      payload: { title: 'Buy oat milk' }
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual({ error: 'Todo not found' });
     await app.close();
   });
 });

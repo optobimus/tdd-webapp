@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('it shows the app shell and lets user add one todo item', async ({ page }) => {
+test('it shows the app shell and lets user add and rename one todo item', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.getByRole('heading', { name: 'To-Do List' })).toBeVisible();
@@ -9,4 +9,9 @@ test('it shows the app shell and lets user add one todo item', async ({ page }) 
   await page.getByLabel('New to-do').fill('Buy milk');
   await page.getByRole('button', { name: 'Add' }).click();
   await expect(page.getByText('Buy milk')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Rename' }).click();
+  await page.getByLabel('Rename to-do').fill('Buy oat milk');
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByText('Buy oat milk')).toBeVisible();
 });
