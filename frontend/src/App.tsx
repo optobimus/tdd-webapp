@@ -83,9 +83,9 @@ export function App({ apiClient }: AppProps) {
   }
 
   return (
-    <main>
-      <h1>To-Do List</h1>
-      <form onSubmit={handleSubmit}>
+    <main className="app">
+      <h1 className="app-title">To-Do List</h1>
+      <form className="todo-create-form" onSubmit={handleSubmit}>
         <label htmlFor="new-title">New to-do</label>
         <input
           id="new-title"
@@ -94,7 +94,7 @@ export function App({ apiClient }: AppProps) {
         />
         <button type="submit">Add</button>
       </form>
-      <button type="button" onClick={handleArchiveCompleted}>
+      <button className="archive-button" type="button" onClick={handleArchiveCompleted}>
         Archive Completed
       </button>
 
@@ -102,11 +102,11 @@ export function App({ apiClient }: AppProps) {
       {!isLoading && !hasError && todos.length === 0 ? <p>No to-dos yet.</p> : null}
       {hasError ? <p>Failed to load to-dos.</p> : null}
 
-      <ul>
+      <ul className="todo-list">
         {todos.map((todo) => (
-          <li key={todo.id}>
+          <li className="todo-item" key={todo.id}>
             {editingId === todo.id ? (
-              <form onSubmit={(event) => handleRenameSubmit(event, todo.id)}>
+              <form className="todo-edit-form" onSubmit={(event) => handleRenameSubmit(event, todo.id)}>
                 <input
                   type="checkbox"
                   aria-label={`Mark ${todo.title} completed`}
@@ -125,20 +125,20 @@ export function App({ apiClient }: AppProps) {
                 </button>
               </form>
             ) : (
-              <>
+              <div className="todo-view">
                 <input
                   type="checkbox"
                   aria-label={`Mark ${todo.title} completed`}
                   checked={todo.completed}
                   onChange={(event) => handleCompletedChange(todo.id, event.target.checked)}
                 />
-                <span style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
+                <span className={todo.completed ? 'todo-title todo-title--completed' : 'todo-title'}>
                   {todo.title}
                 </span>
                 <button type="button" onClick={() => startRename(todo.id, todo.title)}>
                   Rename
                 </button>
-              </>
+              </div>
             )}
           </li>
         ))}
