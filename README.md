@@ -1,47 +1,94 @@
-# [TDD MOOC](https://tdd.mooc.fi): Full-stack web app
+# TDD MOOC: Full-Stack To-Do App
 
-This is a project template for writing a full-stack web app. Here is just some basic Docker and Nginx configuration. The
-rest is up to you. Just develop everything using TDD.
+This repository implements the Exercise 5 full-stack To-Do app with a TDD-first workflow.
 
-You should use the [walking skeleton](https://tdd.mooc.fi/5-advanced#walking-skeleton) approach to start developing the
-application. Even this project template, empty though it may be, was done that way.
+## Stack
 
-Focus on writing tests on every level of the stack:
+- Frontend: React + Vite + Vitest + Testing Library
+- Backend: Fastify + PostgreSQL + Vitest
+- End-to-end: Playwright(exactly one e2e test)
+- Deployment: Docker Compose (`web`, `api`, `db`)
 
-- use unit tests to cover as much of the code as is possible to unit test
-- also unit test the user interface components ([visual testing](https://tdd.mooc.fi/3-challenges#visual-testing) is
-  optional)
-  - tests for the UI components should not depend on the API
-- use focused integration tests for the database and API layers
-  - tests for the API (request routing and validation) should not depend on the database
-  - tests for the database should not depend on the API
-- write only one end-to-end test which requires a fully deployed application (e.g. Docker containers running locally) to
-  make sure that things are wired together correctly (start with this -
-  see [walking skeleton](https://tdd.mooc.fi/5-advanced#walking-skeleton))
+## Implemented Features
 
----
+- Add a to-do item
+- Rename a to-do item
+- Mark a todo item completed
+- Archive all completed to-do items
 
-_This exercise is part of the [TDD MOOC](https://tdd.mooc.fi) at the University of Helsinki, brought to you
-by [Esko Luontola](https://twitter.com/EskoLuontola) and [Nitor](https://nitor.com/)._
+## API Routes
+
+- `GET /api/todos` -> `{ items: Todo[] }`
+- `POST /api/todos` with `{ title }` -> `201 { item: Todo }`
+- `PATCH /api/todos/:id/title` with `{ title }` -> `{ item: Todo }`
+- `PATCH /api/todos/:id/completed` with `{ completed }` -> `{ item: Todo }`
+- `POST /api/todos/archive-completed` -> `{ archivedCount: number }`
+
+`Todo` fields:
+
+- `id: string`
+- `title: string`
+- `completed: boolean`
+- `archived: boolean`
 
 ## Prerequisites
 
-You'll need [Docker](https://www.docker.com/) and whatever other tools you decide to use.
+- Node.js >= 20
+- npm >= 10
+- Docker
 
-## Developing
+## Install
 
-Start the database
+```bash
+npm install
+```
 
-    docker compose up -d db
+## Test Commands
 
-Build and start all containers
+Unit tests (frontend + backend unit):
 
-    docker compose up -d --build
+```bash
+npm run test:unit
+```
 
-Destroy all containers and data
+API tests (routing/validation, DB-independent):
 
-    docker compose down
+```bash
+npm run test:api
+```
 
-Run end-to-end tests
+Database integration tests (repository/SQL, API-independent):
 
-    ./end-to-end-test.sh
+```bash
+docker compose up -d db
+npm run test:integration
+```
+
+Single end-to-end test (full Dockerized app):
+
+```bash
+docker compose up -d --build
+npm run test:e2e
+```
+
+## Run With Docker
+
+```bash
+docker compose up -d --build
+```
+
+- Frontend: `http://localhost:8080`
+- Backend: `http://localhost:8081`
+
+Stop:
+
+```bash
+docker compose down
+```
+
+## Test Layer Separation
+
+- UI tests do not call real API HTTP.
+- API tests do not connect to PostgreSQL.
+- DB tests do not start HTTP server.
+- One Playwright e2e test validates full system wiring.
