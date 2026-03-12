@@ -1,6 +1,6 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, test } from 'vitest';
 import { App } from './App';
 import type { TodoApiClient } from './api/todo-api-client';
 import type { Todo } from './types';
@@ -52,6 +52,10 @@ class FakeTodoApiClient implements TodoApiClient {
 }
 
 describe('App', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   test('it shows the to-do list heading and empty-state message', async () => {
     render(<App apiClient={new FakeTodoApiClient([])} />);
 

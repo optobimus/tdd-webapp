@@ -4,7 +4,7 @@ import { createPool } from '../../src/db/pool.js';
 import { runMigrations } from '../../src/db/migrations.js';
 import { PostgresTodoRepository } from '../../src/repository/postgres-todo-repository.js';
 
-const databaseUrl = process.env.DATABASE_URL ?? 'postgresql://webapp:secret@localhost:5432/webapp';
+const databaseUrl = process.env.DATABASE_URL ?? 'postgresql://webapp:secret@localhost:55432/webapp';
 const shouldRun = process.env.RUN_DB_TESTS === '1';
 
 describe.skipIf(!shouldRun)('PostgresTodoRepository', () => {

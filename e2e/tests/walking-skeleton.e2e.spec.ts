@@ -16,7 +16,7 @@ test('it shows the app shell and lets user add, rename, complete and archive one
   await expect(page.getByText('Buy oat milk')).toBeVisible();
 
   const completedCheckbox = page.getByRole('checkbox', { name: 'Mark Buy oat milk completed' });
-  await completedCheckbox.check();
+  await completedCheckbox.click();
   await expect(completedCheckbox).toBeChecked();
 
   await page.getByRole('button', { name: 'Archive Completed' }).click();

@@ -64,6 +64,8 @@ docker compose up -d db
 npm run test:integration
 ```
 
+This uses PostgreSQL exposed on `localhost:55432` by Docker Compose.
+
 Single end-to-end test (full Dockerized app):
 
 ```bash

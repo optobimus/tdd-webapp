@@ -7,7 +7,7 @@ class FakeTodoRepository implements TodoRepository {
   private readonly items: Todo[] = [];
 
   async listVisible(): Promise<Todo[]> {
-    return [...this.items];
+    return this.items.filter((item) => !item.archived);
   }
 
   async create(title: string): Promise<Todo> {
